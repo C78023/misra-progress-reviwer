@@ -1,0 +1,47 @@
+name: Daily MISRA progress entry
+
+on:
+  schedule:
+    - cron: "5 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Append today if missing
+        run: |
+          set -e
+          FILE="docs/data.csv"
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          if [ ! -f "$FILE" ]; then
+            echo "date,violations_left" > "$FILE"
+            echo "$TODAY,0" >> "$FILE"
+          else
+            LAST_LINE=$(tail -n 1 "$FILE")
+            LAST_DATE=$(echo "$LAST_LINE" | cut -d, -f1)
+            LAST_VAL=$(echo "$LAST_LINE" | cut -d, -f2)
+
+            if [ "$LAST_DATE" != "$TODAY" ]; then
+              echo "$TODAY,$LAST_VAL" >> "$FILE"
+            fi
+          fi
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add docs/data.csv
+          git commit -m "Add daily MISRA progress entry"
+          git push
