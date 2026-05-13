@@ -10,22 +10,21 @@
     *, *::before, *::after { box-sizing: border-box; }
 
     :root {
-      --bg:       #0f1623;
-      --surface:  #161e2e;
-      --card:     #1c2640;
-      --border:   rgba(99,132,255,0.14);
-      --ink:      #e8edf5;
-      --muted:    #7e8da8;
-      --accent:   #4f8ef7;
-      --accent2:  #38bdf8;
-      --green:    #34d399;
-      --red:      #f87171;
+      --bg:      #f0f4fb;
+      --card:    #ffffff;
+      --border:  #dce3f0;
+      --ink:     #1a2236;
+      --muted:   #6b7a99;
+      --accent:  #2563eb;
+      --green:   #059669;
+      --green-bg:#ecfdf5;
+      --green-bd:#a7f3d0;
+      --red:     #dc2626;
+      --red-bg:  #fef2f2;
+      --red-bd:  #fecaca;
     }
 
-    html, body {
-      margin: 0; padding: 0;
-      height: 100%;
-    }
+    html, body { margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', system-ui, sans-serif;
@@ -33,14 +32,14 @@
       color: var(--ink);
       min-height: 100vh;
       background-image:
-        radial-gradient(ellipse 80% 40% at 70% -10%, rgba(79,142,247,0.12), transparent 60%),
-        radial-gradient(ellipse 60% 30% at 10% 80%,  rgba(56,189,248,0.08), transparent 55%);
+        radial-gradient(ellipse 70% 35% at 75% -5%, rgba(37,99,235,0.09), transparent 60%),
+        radial-gradient(ellipse 50% 25% at 5%  90%, rgba(37,99,235,0.06), transparent 55%);
     }
 
     .wrap {
       max-width: 1020px;
       margin: 0 auto;
-      padding: 36px 20px 40px;
+      padding: 36px 20px 48px;
     }
 
     /* ── Header ── */
@@ -55,8 +54,8 @@
       margin: 0 0 4px;
       font-size: 22px;
       font-weight: 700;
-      letter-spacing: .2px;
       color: var(--ink);
+      letter-spacing: .1px;
     }
     .header-left p {
       margin: 0;
@@ -67,13 +66,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 12px;
+      padding: 5px 13px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
-      background: rgba(52,211,153,0.12);
+      background: var(--green-bg);
       color: var(--green);
-      border: 1px solid rgba(52,211,153,0.22);
+      border: 1px solid var(--green-bd);
       white-space: nowrap;
     }
     .badge::before {
@@ -82,20 +81,26 @@
       width: 7px; height: 7px;
       border-radius: 50%;
       background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
     }
 
     /* ── Stats row ── */
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 20px;
     }
     .stat {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px;
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(30,50,100,.06);
     }
     .stat-label {
       font-size: 11px;
@@ -103,18 +108,22 @@
       text-transform: uppercase;
       letter-spacing: .8px;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .stat-value {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--ink);
       line-height: 1;
     }
-    .stat-value.good { color: var(--green); }
-    .stat-value.bad  { color: var(--red);   }
+    .stat-value.good {
+      color: var(--green);
+    }
+    .stat-value.bad {
+      color: var(--red);
+    }
     .stat-sub {
-      margin-top: 4px;
+      margin-top: 5px;
       font-size: 12px;
       color: var(--muted);
     }
@@ -124,9 +133,37 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 20px 22px 22px;
+      padding: 24px 24px 20px;
+      box-shadow: 0 2px 12px rgba(30,50,100,.07);
     }
     .chart-box { width: 100%; }
+
+    /* ── Note box ── */
+    .note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+    .note-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 15px;
+    }
+    .note a {
+      color: #1d4ed8;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .note a:hover { color: #1e40af; }
   </style>
 </head>
 <body>
@@ -136,9 +173,9 @@
     <div class="header">
       <div class="header-left">
         <h1>MCAF R10 MISRA Compliance Progress</h1>
-        <p>Tracking violations remaining over time</p>
+        <p>Violations remaining over time &mdash; updated daily</p>
       </div>
-      <div class="badge" id="status-badge">Live</div>
+      <div class="badge">Live</div>
     </div>
 
     <!-- Stats -->
@@ -167,6 +204,18 @@
       </div>
     </div>
 
+    <!-- Baseline note -->
+    <div class="note">
+      <span class="note-icon">ℹ️</span>
+      <span>
+        The <strong>baseline (start point)</strong> is determined from the 33CK device default build of MCAF R9 RC31.
+        See the full baseline report on Confluence:
+        <a href="https://confluence.microchip.com/display/MCU16APP/MCAF+R9+RC31+MISRA+-+33CK+Baseline" target="_blank" rel="noopener">
+          MCAF R9 RC31 MISRA &mdash; 33CK Baseline
+        </a>
+      </span>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -181,12 +230,11 @@
     }
 
     (async () => {
-      const data = await loadCsv("./data.csv");
+      const data   = await loadCsv("./data.csv");
       const labels = data.map(d => d.date);
       const values = data.map(d => d.violations);
       const maxVal = values.length ? Math.max(...values) : 0;
-      const minVal = values.length ? Math.min(...values) : 0;
-      const first  = values[0]            ?? 0;
+      const first  = values[0] ?? 0;
       const last   = values[values.length - 1] ?? 0;
       const resolved = first - last;
 
@@ -199,11 +247,11 @@
       }
 
       // Gradient fill
-      const ctx = document.getElementById("chart").getContext("2d");
-      const grad = ctx.createLinearGradient(0, 0, 0, 400);
-      grad.addColorStop(0,   "rgba(79,142,247,0.35)");
-      grad.addColorStop(0.6, "rgba(79,142,247,0.08)");
-      grad.addColorStop(1,   "rgba(79,142,247,0.00)");
+      const ctx  = document.getElementById("chart").getContext("2d");
+      const grad = ctx.createLinearGradient(0, 0, 0, 380);
+      grad.addColorStop(0,   "rgba(37,99,235,0.18)");
+      grad.addColorStop(0.7, "rgba(37,99,235,0.04)");
+      grad.addColorStop(1,   "rgba(37,99,235,0.00)");
 
       new Chart(ctx, {
         type: "line",
@@ -212,14 +260,14 @@
           datasets: [{
             label: "Violations left",
             data: values,
-            borderColor: "#4f8ef7",
+            borderColor: "#2563eb",
             backgroundColor: grad,
             fill: true,
             tension: 0.35,
             pointRadius: 4,
             pointHoverRadius: 7,
-            pointBackgroundColor: "#4f8ef7",
-            pointBorderColor: "#1c2640",
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#2563eb",
             pointBorderWidth: 2,
             borderWidth: 2.5
           }]
@@ -229,16 +277,16 @@
           interaction: { mode: "index", intersect: false },
           scales: {
             x: {
-              title: { display: true, text: "Date", color: "#7e8da8", font: { size: 12 } },
-              grid:  { color: "rgba(255,255,255,0.04)" },
-              ticks: { color: "#7e8da8", maxRotation: 45, font: { size: 11 } },
-              border: { color: "rgba(255,255,255,0.06)" }
+              title: { display: true, text: "Date", color: "#6b7a99", font: { size: 12, family: "Inter" } },
+              grid:  { color: "rgba(30,50,100,0.06)" },
+              ticks: { color: "#6b7a99", maxRotation: 45, font: { size: 11 } },
+              border:{ color: "#dce3f0" }
             },
             y: {
-              title: { display: true, text: "Violations left", color: "#7e8da8", font: { size: 12 } },
-              grid:  { color: "rgba(255,255,255,0.04)" },
-              ticks: { color: "#7e8da8", font: { size: 11 } },
-              border: { color: "rgba(255,255,255,0.06)" },
+              title: { display: true, text: "Violations left", color: "#6b7a99", font: { size: 12, family: "Inter" } },
+              grid:  { color: "rgba(30,50,100,0.06)" },
+              ticks: { color: "#6b7a99", font: { size: 11 } },
+              border:{ color: "#dce3f0" },
               suggestedMin: 0,
               suggestedMax: Math.ceil(maxVal * 1.08)
             }
@@ -246,18 +294,19 @@
           plugins: {
             legend: {
               labels: {
-                color: "#7e8da8",
+                color: "#6b7a99",
                 boxWidth: 12,
-                font: { size: 12 }
+                font: { size: 12, family: "Inter" }
               }
             },
             tooltip: {
-              backgroundColor: "#0f1623",
-              titleColor: "#e8edf5",
-              bodyColor:  "#b0bcd4",
-              borderColor: "rgba(79,142,247,0.4)",
+              backgroundColor: "#1a2236",
+              titleColor: "#f1f5fb",
+              bodyColor:  "#a8b4cc",
+              borderColor: "rgba(37,99,235,0.35)",
               borderWidth: 1,
               padding: 10,
+              cornerRadius: 8,
               callbacks: {
                 label: ctx => ` ${ctx.parsed.y.toLocaleString()} violations`
               }
