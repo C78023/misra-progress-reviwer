@@ -193,7 +193,7 @@
       <div class="stat">
         <div class="stat-label">Last updated</div>
         <div class="stat-value" id="stat-date" style="font-size:18px">—</div>
-        <div class="stat-sub">date of last entry</div>
+        <div class="stat-sub" id="stat-rev">—</div>
       </div>
     </div>
 
@@ -206,9 +206,9 @@
 
     <!-- Baseline note -->
     <div class="note">
-      <span class="note-icon">ℹ️</span>
+      <span class="note-icon"></span>
       <span>
-        The <strong>baseline (start point)</strong> is determined from the 33CK device default build of MCAF R9 RC31.
+        <strong>Note:</strong> The <strong>baseline (start point)</strong> is determined from the 33CK device default build of MCAF R9 RC31.
         See the full baseline report on Confluence:
         <a href="https://confluence.microchip.com/display/MCU16APP/MCAF+R9+RC31+MISRA+-+33CK+Baseline" target="_blank" rel="noopener">
           MCAF R9 RC31 MISRA &mdash; 33CK Baseline
@@ -224,8 +224,8 @@
       const text = await fetch(url, { cache: "no-store" }).then(r => r.text());
       const lines = text.trim().split("\n");
       return lines.slice(1).filter(Boolean).map(r => {
-        const [date, violations] = r.split(/[\t,]/);
-        return { date: date.trim(), violations: Number(violations) };
+        const [date, violations, revision] = r.split(/[\t,]/);
+        return { date: date.trim(), violations: Number(violations), revision: (revision ?? "").trim() };
       });
     }
 
@@ -242,6 +242,8 @@
       document.getElementById("stat-current").textContent  = last.toLocaleString();
       document.getElementById("stat-resolved").textContent = (resolved >= 0 ? "+" : "") + resolved.toLocaleString();
       document.getElementById("stat-date").textContent     = labels[labels.length - 1] ?? "—";
+      const lastRev = data[data.length - 1]?.revision;
+      document.getElementById("stat-rev").textContent      = lastRev ? `rev: ${lastRev}` : "—";
       if (resolved < 0) {
         document.getElementById("stat-resolved").classList.replace("good", "bad");
       }
@@ -295,7 +297,8 @@
             legend: {
               labels: {
                 color: "#6b7a99",
-                boxWidth: 12,
+                usePointStyle: true,
+                pointStyle: "line",
                 font: { size: 12, family: "Inter" }
               }
             },
@@ -308,7 +311,11 @@
               padding: 10,
               cornerRadius: 8,
               callbacks: {
-                label: ctx => ` ${ctx.parsed.y.toLocaleString()} violations`
+                label: ctx => ` ${ctx.parsed.y.toLocaleString()} violations`,
+                afterLabel: ctx => {
+                  const rev = data[ctx.dataIndex]?.revision;
+                  return rev ? ` rev: ${rev}` : "";
+                }
               }
             }
           }

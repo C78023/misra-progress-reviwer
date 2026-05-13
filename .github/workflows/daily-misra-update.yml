@@ -28,9 +28,10 @@ jobs:
             LAST_LINE=$(tail -n 1 "$FILE")
             LAST_DATE=$(echo "$LAST_LINE" | cut -d, -f1)
             LAST_VAL=$(echo "$LAST_LINE" | cut -d, -f2)
+            LAST_REV=$(echo "$LAST_LINE" | cut -d, -f3)
 
             if [ "$LAST_DATE" != "$TODAY" ]; then
-              echo "$TODAY,$LAST_VAL" >> "$FILE"
+              echo "$TODAY,$LAST_VAL,$LAST_REV" >> "$FILE"
             fi
           fi
 
