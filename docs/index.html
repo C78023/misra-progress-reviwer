@@ -172,7 +172,7 @@
     <!-- Header -->
     <div class="header">
       <div class="header-left">
-        <h1>MCAF R10 MISRA Compliance Progress</h1>
+        <h1>MCAF R10: MISRA C 2023 Compliance Progress</h1>
         <p>Violations remaining over time &mdash; updated daily</p>
       </div>
       <div class="badge">Live</div>
@@ -208,7 +208,7 @@
     <div class="note">
       <span class="note-icon"></span>
       <span>
-        <strong>Note:</strong> The <strong>baseline (start point)</strong> is determined from the 33CK device default build of MCAF R9 RC31.
+        <strong>Note:</strong> The baseline (start point) is determined from the 33CK device default build of MCAF R9 RC31.
         See the full baseline report on Confluence:
         <a href="https://confluence.microchip.com/display/MCU16APP/MCAF+R9+RC31+MISRA+-+33CK+Baseline" target="_blank" rel="noopener">
           MCAF R9 RC31 MISRA &mdash; 33CK Baseline
@@ -243,7 +243,7 @@
       document.getElementById("stat-resolved").textContent = (resolved >= 0 ? "+" : "") + resolved.toLocaleString();
       document.getElementById("stat-date").textContent     = labels[labels.length - 1] ?? "—";
       const lastRev = data[data.length - 1]?.revision;
-      document.getElementById("stat-rev").textContent      = lastRev ? `rev: ${lastRev}` : "—";
+      document.getElementById("stat-rev").textContent      = lastRev ? `Revision: ${lastRev}` : "—";
       if (resolved < 0) {
         document.getElementById("stat-resolved").classList.replace("good", "bad");
       }
@@ -295,6 +295,8 @@
           },
           plugins: {
             legend: {
+              position: "top",
+              align: "end",
               labels: {
                 color: "#6b7a99",
                 usePointStyle: true,
