@@ -61,6 +61,7 @@
       const data = await loadCsv("./data.csv");
       const labels = data.map(d => d.date);
       const values = data.map(d => d.violations);
+      const maxVal = values.length ? Math.max(...values) : 0;
       new Chart(document.getElementById("chart"), {
         type: "line",
         data: {
@@ -88,9 +89,10 @@
             },
             y: {
               title: { display: true, text: "Violations left" },
-              beginAtZero: true,
               grid: { color: "rgba(30,41,59,0.08)" },
-              ticks: { color: "#5f6b85" }
+              ticks: { color: "#5f6b85" },
+              suggestedMin: 0,
+              suggestedMax: Math.ceil(maxVal * 1.05)
             }
           },
           plugins: {
