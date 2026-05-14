@@ -127,6 +127,19 @@
       font-size: 12px;
       color: var(--muted);
     }
+    .stat-breakdown {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .stat-breakdown .fixed-label {
+      color: #dc2626;
+    }
+    .stat-breakdown .suppressed-label {
+      color: #d97706;
+    }
 
     /* ── Chart card ── */
     .card {
@@ -188,6 +201,10 @@
       <div class="stat">
         <div class="stat-label">Resolved</div>
         <div class="stat-value good" id="stat-resolved">—</div>
+        <div class="stat-breakdown">
+          <span class="fixed-label" id="stat-fixed">Fixed: —</span>
+          <span class="suppressed-label" id="stat-suppressed">Suppressed: —</span>
+        </div>
         <div class="stat-sub">since start</div>
       </div>
       <div class="stat">
@@ -224,8 +241,14 @@
       const text = await fetch(url, { cache: "no-store" }).then(r => r.text());
       const lines = text.trim().split("\n");
       return lines.slice(1).filter(Boolean).map(r => {
-        const [date, violations, revision] = r.split(/[\t,]/);
-        return { date: date.trim(), violations: Number(violations), revision: (revision ?? "").trim() };
+        const [date, violations, fixed, suppressed, revision] = r.split(/[\t,]/);
+        return {
+          date: date.trim(),
+          violations: Number(violations),
+          fixed: Number(fixed ?? 0),
+          suppressed: Number(suppressed ?? 0),
+          revision: (revision ?? "").trim()
+        };
       });
     }
 
@@ -233,14 +256,22 @@
       const data   = await loadCsv("./data.csv");
       const labels = data.map(d => d.date);
       const values = data.map(d => d.violations);
+      const fixedValues = data.map(d => d.fixed);
+      const suppressedValues = data.map(d => d.suppressed);
       const maxVal = values.length ? Math.max(...values) : 0;
       const first  = values[0] ?? 0;
       const last   = values[values.length - 1] ?? 0;
       const resolved = first - last;
 
+      // Latest cumulative fixed & suppressed
+      const totalFixed = fixedValues[fixedValues.length - 1] ?? 0;
+      const totalSuppressed = suppressedValues[suppressedValues.length - 1] ?? 0;
+
       // Fill stats
       document.getElementById("stat-current").textContent  = last.toLocaleString();
       document.getElementById("stat-resolved").textContent = (resolved >= 0 ? "+" : "") + resolved.toLocaleString();
+      document.getElementById("stat-fixed").textContent = "Fixed: " + totalFixed.toLocaleString();
+      document.getElementById("stat-suppressed").textContent = "Suppressed: " + totalSuppressed.toLocaleString();
       document.getElementById("stat-date").textContent     = labels[labels.length - 1] ?? "—";
       const lastRev = data[data.length - 1]?.revision;
       document.getElementById("stat-rev").textContent      = lastRev ? `Revision: ${lastRev}` : "—";
@@ -248,31 +279,73 @@
         document.getElementById("stat-resolved").classList.replace("good", "bad");
       }
 
-      // Gradient fill
+      // Gradient fills
       const ctx  = document.getElementById("chart").getContext("2d");
-      const grad = ctx.createLinearGradient(0, 0, 0, 380);
-      grad.addColorStop(0,   "rgba(37,99,235,0.18)");
-      grad.addColorStop(0.7, "rgba(37,99,235,0.04)");
-      grad.addColorStop(1,   "rgba(37,99,235,0.00)");
+      const gradBlue = ctx.createLinearGradient(0, 0, 0, 380);
+      gradBlue.addColorStop(0,   "rgba(37,99,235,0.18)");
+      gradBlue.addColorStop(0.7, "rgba(37,99,235,0.04)");
+      gradBlue.addColorStop(1,   "rgba(37,99,235,0.00)");
+
+      const gradRed = ctx.createLinearGradient(0, 0, 0, 380);
+      gradRed.addColorStop(0,   "rgba(220,38,38,0.22)");
+      gradRed.addColorStop(0.7, "rgba(220,38,38,0.04)");
+      gradRed.addColorStop(1,   "rgba(220,38,38,0.00)");
+
+      const gradAmber = ctx.createLinearGradient(0, 0, 0, 380);
+      gradAmber.addColorStop(0,   "rgba(217,119,6,0.22)");
+      gradAmber.addColorStop(0.7, "rgba(217,119,6,0.04)");
+      gradAmber.addColorStop(1,   "rgba(217,119,6,0.00)");
 
       new Chart(ctx, {
         type: "line",
         data: {
           labels,
-          datasets: [{
-            label: "Violations left",
-            data: values,
-            borderColor: "#2563eb",
-            backgroundColor: grad,
-            fill: true,
-            tension: 0.35,
-            pointRadius: 4,
-            pointHoverRadius: 7,
-            pointBackgroundColor: "#ffffff",
-            pointBorderColor: "#2563eb",
-            pointBorderWidth: 2,
-            borderWidth: 2.5
-          }]
+          datasets: [
+            {
+              label: "Violations left",
+              data: values,
+              borderColor: "#2563eb",
+              backgroundColor: gradBlue,
+              fill: true,
+              tension: 0.35,
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              pointBackgroundColor: "#ffffff",
+              pointBorderColor: "#2563eb",
+              pointBorderWidth: 2,
+              borderWidth: 2.5
+            },
+            {
+              label: "Fixed",
+              data: fixedValues,
+              borderColor: "#dc2626",
+              backgroundColor: gradRed,
+              fill: true,
+              tension: 0.35,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#ffffff",
+              pointBorderColor: "#dc2626",
+              pointBorderWidth: 2,
+              borderWidth: 2,
+              borderDash: []
+            },
+            {
+              label: "Suppressed",
+              data: suppressedValues,
+              borderColor: "#d97706",
+              backgroundColor: gradAmber,
+              fill: true,
+              tension: 0.35,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#ffffff",
+              pointBorderColor: "#d97706",
+              pointBorderWidth: 2,
+              borderWidth: 2,
+              borderDash: [5, 3]
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -285,7 +358,7 @@
               border:{ color: "#dce3f0" }
             },
             y: {
-              title: { display: true, text: "Violations left", color: "#6b7a99", font: { size: 12, family: "Inter" } },
+              title: { display: true, text: "Count", color: "#6b7a99", font: { size: 12, family: "Inter" } },
               grid:  { color: "rgba(30,50,100,0.06)" },
               ticks: { color: "#6b7a99", font: { size: 11 } },
               border:{ color: "#dce3f0" },
@@ -300,7 +373,7 @@
               labels: {
                 color: "#6b7a99",
                 usePointStyle: true,
-                pointStyle: "line",
+                pointStyle: "circle",
                 font: { size: 12, family: "Inter" }
               }
             },
@@ -313,10 +386,14 @@
               padding: 10,
               cornerRadius: 8,
               callbacks: {
-                label: ctx => ` ${ctx.parsed.y.toLocaleString()} violations`,
-                afterLabel: ctx => {
-                  const rev = data[ctx.dataIndex]?.revision;
-                  return rev ? ` rev: ${rev}` : "";
+                label: tipCtx => {
+                  const dsLabel = tipCtx.dataset.label;
+                  return ` ${dsLabel}: ${tipCtx.parsed.y.toLocaleString()}`;
+                },
+                afterBody: tipItems => {
+                  const idx = tipItems[0]?.dataIndex;
+                  const rev = data[idx]?.revision;
+                  return rev ? `  rev: ${rev}` : "";
                 }
               }
             }

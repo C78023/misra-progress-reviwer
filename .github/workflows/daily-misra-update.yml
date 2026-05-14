@@ -22,16 +22,18 @@ jobs:
           TODAY=$(date -u +"%Y-%m-%d")
 
           if [ ! -f "$FILE" ]; then
-            echo "date,violations_left" > "$FILE"
-            echo "$TODAY,0" >> "$FILE"
+            echo "date,violations_left,fixed,suppressed,revision" > "$FILE"
+            echo "$TODAY,0,0,0," >> "$FILE"
           else
             LAST_LINE=$(tail -n 1 "$FILE")
             LAST_DATE=$(echo "$LAST_LINE" | cut -d, -f1)
             LAST_VAL=$(echo "$LAST_LINE" | cut -d, -f2)
-            LAST_REV=$(echo "$LAST_LINE" | cut -d, -f3)
+            LAST_FIXED=$(echo "$LAST_LINE" | cut -d, -f3)
+            LAST_SUPPRESSED=$(echo "$LAST_LINE" | cut -d, -f4)
+            LAST_REV=$(echo "$LAST_LINE" | cut -d, -f5)
 
             if [ "$LAST_DATE" != "$TODAY" ]; then
-              echo "$TODAY,$LAST_VAL,$LAST_REV" >> "$FILE"
+              echo "$TODAY,$LAST_VAL,$LAST_FIXED,$LAST_SUPPRESSED,$LAST_REV" >> "$FILE"
             fi
           fi
 
