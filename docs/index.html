@@ -129,15 +129,30 @@
     }
     .stat-breakdown {
       display: flex;
-      gap: 12px;
-      margin-top: 8px;
-      font-size: 12px;
-      font-weight: 500;
+      gap: 16px;
+      margin-top: 10px;
     }
-    .stat-breakdown .fixed-label {
+    .stat-breakdown .breakdown-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-breakdown .breakdown-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+    }
+    .stat-breakdown .breakdown-value {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-breakdown .breakdown-value.fixed-color {
       color: #dc2626;
     }
-    .stat-breakdown .suppressed-label {
+    .stat-breakdown .breakdown-value.suppressed-color {
       color: #d97706;
     }
 
@@ -202,15 +217,21 @@
         <div class="stat-label">Resolved</div>
         <div class="stat-value good" id="stat-resolved">—</div>
         <div class="stat-breakdown">
-          <span class="fixed-label" id="stat-fixed">FIXED: —</span>
-          <span class="suppressed-label" id="stat-suppressed">SUPPRESSED: —</span>
+          <div class="breakdown-item">
+            <span class="breakdown-label">Fixed</span>
+            <span class="breakdown-value fixed-color" id="stat-fixed">—</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="breakdown-label">Suppressed</span>
+            <span class="breakdown-value suppressed-color" id="stat-suppressed">—</span>
+          </div>
         </div>
         <div class="stat-sub">since start</div>
       </div>
       <div class="stat">
         <div class="stat-label">Last updated</div>
         <div class="stat-value" id="stat-date" style="font-size:18px">—</div>
-        <div class="stat-label">Revision</div>
+        <div class="stat-label" style="margin-top:10px">Revision</div>
         <div class="stat-value" id="stat-rev" style="font-size:18px">—</div>
       </div>
     </div>
@@ -271,11 +292,11 @@
       // Fill stats
       document.getElementById("stat-current").textContent  = last.toLocaleString();
       document.getElementById("stat-resolved").textContent = (resolved >= 0 ? "+" : "") + resolved.toLocaleString();
-      document.getElementById("stat-fixed").textContent = "Fixed: " + totalFixed.toLocaleString();
-      document.getElementById("stat-suppressed").textContent = "Suppressed: " + totalSuppressed.toLocaleString();
+      document.getElementById("stat-fixed").textContent = totalFixed.toLocaleString();
+      document.getElementById("stat-suppressed").textContent = totalSuppressed.toLocaleString();
       document.getElementById("stat-date").textContent     = labels[labels.length - 1] ?? "—";
       const lastRev = data[data.length - 1]?.revision;
-      document.getElementById("stat-rev").textContent      = lastRev ? `Revision: ${lastRev}` : "—";
+      document.getElementById("stat-rev").textContent      = lastRev || "—";
       if (resolved < 0) {
         document.getElementById("stat-resolved").classList.replace("good", "bad");
       }
@@ -374,7 +395,7 @@
               labels: {
                 color: "#6b7a99",
                 usePointStyle: true,
-                pointStyle: "circle",
+                pointStyle: "line",
                 font: { size: 12, family: "Inter" }
               }
             },
