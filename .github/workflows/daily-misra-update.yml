@@ -1,50 +1,50 @@
-name: Daily MISRA progress entry
+# name: Daily MISRA progress entry
 
-on:
-  schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: "0 0 * * *"
+#   workflow_dispatch:
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+# jobs:
+#   update:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Append today if missing
-        run: |
-          set -e
-          FILE="docs/data.csv"
-          TODAY=$(date -u +"%Y-%m-%d")
+#       - name: Append today if missing
+#         run: |
+#           set -e
+#           FILE="docs/data.csv"
+#           TODAY=$(date -u +"%Y-%m-%d")
 
-          if [ ! -f "$FILE" ]; then
-            echo "date,violations_left,fixed,suppressed,revision" > "$FILE"
-            echo "$TODAY,0,0,0," >> "$FILE"
-          else
-            LAST_LINE=$(tail -n 1 "$FILE")
-            LAST_DATE=$(echo "$LAST_LINE" | cut -d, -f1)
-            LAST_VAL=$(echo "$LAST_LINE" | cut -d, -f2)
-            LAST_FIXED=$(echo "$LAST_LINE" | cut -d, -f3)
-            LAST_SUPPRESSED=$(echo "$LAST_LINE" | cut -d, -f4)
-            LAST_REV=$(echo "$LAST_LINE" | cut -d, -f5)
+#           if [ ! -f "$FILE" ]; then
+#             echo "date,violations_left,fixed,suppressed,revision" > "$FILE"
+#             echo "$TODAY,0,0,0," >> "$FILE"
+#           else
+#             LAST_LINE=$(tail -n 1 "$FILE")
+#             LAST_DATE=$(echo "$LAST_LINE" | cut -d, -f1)
+#             LAST_VAL=$(echo "$LAST_LINE" | cut -d, -f2)
+#             LAST_FIXED=$(echo "$LAST_LINE" | cut -d, -f3)
+#             LAST_SUPPRESSED=$(echo "$LAST_LINE" | cut -d, -f4)
+#             LAST_REV=$(echo "$LAST_LINE" | cut -d, -f5)
 
-            if [ "$LAST_DATE" != "$TODAY" ]; then
-              echo "$TODAY,$LAST_VAL,$LAST_FIXED,$LAST_SUPPRESSED,$LAST_REV" >> "$FILE"
-            fi
-          fi
+#             if [ "$LAST_DATE" != "$TODAY" ]; then
+#               echo "$TODAY,$LAST_VAL,$LAST_FIXED,$LAST_SUPPRESSED,$LAST_REV" >> "$FILE"
+#             fi
+#           fi
 
-      - name: Commit if changed
-        run: |
-          if git diff --quiet; then
-            echo "No changes."
-            exit 0
-          fi
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add docs/data.csv
-          git commit -m "Add daily MISRA progress entry"
-          git push
+#       - name: Commit if changed
+#         run: |
+#           if git diff --quiet; then
+#             echo "No changes."
+#             exit 0
+#           fi
+#           git config user.name "github-actions"
+#           git config user.email "github-actions@users.noreply.github.com"
+#           git add docs/data.csv
+#           git commit -m "Add daily MISRA progress entry"
+#           git push
